@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "moneykeeper"
+version = "0.1.0"
+description = ""
+authors = ["Edward-Kulyk <kulikeduard89@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.111.0"
+aiogram = "^3.7.0"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.30"}
+aiosqlite = "^0.20.0"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.10.0"
+black = "^24.4.2"
+isort = "^5.13.2"
+ruff = "^0.4.8"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.isort]
+line_length = 120
+skip = []
+profile = "black"
+
+[tool.black]
+line_length = 120
+exclude ='''
+    ^__init__\.py
+'''
+
+
+[tool.mypy]
+exclude = "src/schemas"
+check_untyped_defs = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+plugins = "sqlalchemy.ext.mypy.plugin"
+
+[tool.ruff]
+exclude = ["__init__.py"]

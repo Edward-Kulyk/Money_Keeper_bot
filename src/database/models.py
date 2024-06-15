@@ -11,7 +11,7 @@ class User(Base):
     tg_user_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True, nullable=False)
     tg_chat_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True, nullable=False)
     token: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    payment_mode:Mapped[str] = mapped_column(String,nullable=False,default="Remember")
+    payment_mode: Mapped[str] = mapped_column(String, nullable=False, default="remember")
 
     operations: Mapped[List["Operation"]] = relationship("Operation", back_populates="owner")
     credit_cards: Mapped[List["CreditCard"]] = relationship("CreditCard", back_populates="owner")

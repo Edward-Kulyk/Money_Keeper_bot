@@ -7,7 +7,7 @@ from src.bot.keyboards.cancel_button import cancel_keyboard
 from src.bot.keyboards.category import category_keyboard
 from src.bot.keyboards.category_inline import get_categories_keyboard
 from src.bot.keyboards.confirmation import confirm_keyboard
-from src.bot.keyboards.settings import settings_keyboard
+from src.bot.keyboards.settings import get_setting_menu
 from src.bot.state import BotCategorySettingsStates
 from src.services.category import add_new_category_from_user, update_category_name_by_id, delete_category_by_id
 
@@ -88,7 +88,7 @@ async def deletion_of_category(message: Message, state: FSMContext):
 
 @category_router.message(F.text.lower() == "back to settings")
 async def back_to_settings(message: Message) -> None:
-    await message.answer("Settings Menu", reply_markup=settings_keyboard)
+    await message.answer("Settings Menu", reply_markup=await get_setting_menu(message.from_user.id))
 
 
 @category_router.message(F.text.lower() == "cancel", StateFilter(BotCategorySettingsStates.edit_category,

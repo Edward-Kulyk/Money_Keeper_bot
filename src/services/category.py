@@ -14,11 +14,12 @@ async def add_new_category_from_user(tg_user_id: int, category: str) -> str:
         return "Category successful added"
 
 
-async def update_category_name_by_id(category_id: int, new_category_name: str):
+async def update_category_name_by_id(category_id: int, new_category_name: str) -> None:
     async with get_session() as session:
         await update_category_name(session, category_id, new_category_name)
 
 
-async def delete_category_by_id(category_id: int):
+async def delete_category_by_id(category_id: int) -> None:
     async with get_session() as session:
         await delete_category(session, category_id)
+

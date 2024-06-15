@@ -6,6 +6,7 @@ kb_settings = [
         types.KeyboardButton(text="Category settings"),
     ],
     [types.KeyboardButton(text="Back to main menu")],
+    [types.KeyboardButton(text=f"Payments mode:")],
 ]
 
 settings_keyboard = types.ReplyKeyboardMarkup(

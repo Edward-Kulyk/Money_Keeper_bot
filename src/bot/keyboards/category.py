@@ -1,9 +1,8 @@
 from aiogram import types
 
-kb_category = [
+kb_category = [[types.KeyboardButton(text="Add category")],
     [
-        types.KeyboardButton(text="Add new category"),
-        types.KeyboardButton(text="Edit existing category"),
+        types.KeyboardButton(text="Edit category"),
         types.KeyboardButton(text="Delete category"),
     ],
     [types.KeyboardButton(text="Back to settings")],

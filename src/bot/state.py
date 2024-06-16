@@ -1,4 +1,4 @@
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 
 
 class BotStates(StatesGroup):
@@ -16,3 +16,8 @@ class BotCategorySettingsStates(StatesGroup):
     new_name_for_category = State()
     delete_category = State()
     deletion_confirm = State()
+
+
+class BotPaymentsSorting(StatesGroup):
+    sorting = State()
+    category_suggestion = State()

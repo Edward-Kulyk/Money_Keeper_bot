@@ -1,4 +1,5 @@
 from aiogram import F, Router, types
+
 from src.bot.keyboards.main_menu import main_menu_keyboard
 from src.bot.keyboards.statistics import statistics_keyboard
 

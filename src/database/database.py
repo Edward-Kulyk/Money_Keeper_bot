@@ -1,22 +1,18 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, AsyncAttrs, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.exc import IntegrityError, OperationalError, SQLAlchemyError
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Any
+from typing import Any, AsyncGenerator
+
+from sqlalchemy.exc import IntegrityError, OperationalError, SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase
 
 # Database URL configuration
-DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+DATABASE_URL = "postgresql+asyncpg://postgres:mysecretpassword@localhost:5433/moneykeeper"
 
 # Create an asynchronous engine
 engine = create_async_engine(DATABASE_URL, echo=True)
 
 # Configure the sessionmaker for async sessions
-async_session = async_sessionmaker(
-    engine,
-    class_=AsyncSession,
-    autoflush=False,
-    expire_on_commit=False
-)
+async_session = async_sessionmaker(engine, class_=AsyncSession, autoflush=False, expire_on_commit=False)
 
 
 # Define the base class for models

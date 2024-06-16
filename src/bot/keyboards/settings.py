@@ -3,7 +3,7 @@ from aiogram import types
 from src.services.user import get_user_payment_mode_by_tg_id
 
 
-async def get_setting_menu(tg_user_id: int):
+async def get_setting_menu(tg_user_id: int) -> types.ReplyKeyboardMarkup:
     kb_settings = [
         [
             types.KeyboardButton(text="Get token"),

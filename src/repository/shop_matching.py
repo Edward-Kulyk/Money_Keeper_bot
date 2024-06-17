@@ -13,4 +13,4 @@ async def get_category_by_shop(session: AsyncSession, shop: str, owner_id) -> in
         await session.execute(
             select(ShopCategory.category_id).where(ShopCategory.shop_name == shop, ShopCategory.owner_id == owner_id)
         )
-    ).scalar_one_or_none()
+    ).scalars().first()

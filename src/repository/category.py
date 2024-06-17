@@ -4,7 +4,7 @@ from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from src.database.models import Category, User
+from src.database.models import Category, User, Operation
 
 
 async def get_all_categories_by_tg_user_id(session: AsyncSession, tg_user_id: int) -> Sequence[Category] | None:
@@ -26,6 +26,7 @@ async def update_category_name(session: AsyncSession, category_id: int, category
 
 
 async def delete_category(session: AsyncSession, category_id: int):
+    await session.execute(update(Operation).where(Operation.category_id == category_id).values(category_id=None))
     await session.execute(delete(Category).where(Category.id == category_id))
 
 

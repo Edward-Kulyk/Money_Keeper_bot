@@ -1,6 +1,6 @@
 from typing import List
 
-from sqlalchemy import asc, select
+from sqlalchemy import asc, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import Operation
@@ -43,3 +43,10 @@ async def get_unsorted_operation_by_shop_user_id(session: AsyncSession, user_id:
 
 async def get_unsorted_payment_by_id(session: AsyncSession, operation_id: int) -> Operation:
     return (await session.execute(select(Operation).where(Operation.id == operation_id))).scalars().first()
+
+
+async def get_unsorted_payment_count(session: AsyncSession, owner_id) -> int:
+    result = await session.execute(
+        select(func.count(Operation.id)).where(Operation.owner_id == owner_id, Operation.category_id.is_(None))
+    )
+    return result.scalar()

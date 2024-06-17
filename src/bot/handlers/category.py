@@ -22,20 +22,25 @@ async def category_menu(message: Message, state: FSMContext) -> None:
 
 @category_router.message(F.text.lower() == "add category")
 async def add_category(message: Message, state: FSMContext) -> None:
-    await message.answer("Please enter the name of the category you want to add:")
-    await message.answer("Or cancel the operation:", reply_markup=cancel_keyboard)
+    await message.answer("Please enter the name of the category you want to add or cancel the operation:",
+                         reply_markup=cancel_keyboard)
     await state.set_state(BotCategorySettingsStates.add_category)
 
 
-@category_router.message(StateFilter(BotCategorySettingsStates.add_category))
+@category_router.message(F.text.lower() != "cancel", StateFilter(BotCategorySettingsStates.add_category))
 async def adding_new_category(message: Message, state: FSMContext) -> None:
     if message.from_user and message.text:
-        user_id = message.from_user.id
-        answer = await add_new_category_from_user(user_id, message.text)
-        await message.answer(answer, reply_markup=category_keyboard)
-        await state.set_state(BotCategorySettingsStates.settings_category)
+        if len(message.text) < 35:
+            user_id = message.from_user.id
+            answer = await add_new_category_from_user(user_id, message.text)
+            await message.answer(answer, reply_markup=category_keyboard)
+            await state.set_state(BotCategorySettingsStates.settings_category)
+        else:
+            await message.answer("Failed to add category. Name must be shorter than 35 characters.",
+                                 reply_markup=cancel_keyboard)
     else:
-        await message.answer("Failed to add category. Please try again.", reply_markup=cancel_keyboard)
+        await message.answer("Failed to add category. Please try again.",
+                             reply_markup=cancel_keyboard)
 
 
 @category_router.message(F.text.lower() == "edit category")
@@ -59,6 +64,7 @@ async def handle_category_edit_selection(callback_query: CallbackQuery, state: F
         await state.set_state(BotCategorySettingsStates.new_name_for_category)
         await state.update_data(category_id=category_id)
         await callback_query.message.answer("Enter new name :")
+        await callback_query.message.delete()
 
 
 @category_router.message(StateFilter(BotCategorySettingsStates.new_name_for_category))
@@ -94,6 +100,7 @@ async def handle_category_selection_deletion(callback_query: CallbackQuery, stat
         await state.set_state(BotCategorySettingsStates.deletion_confirm)
         await state.update_data(category_id=category_id)
         await callback_query.message.answer("Confirm deletion :", reply_markup=confirm_keyboard)
+        await callback_query.message.delete()
 
 
 @category_router.message(F.text.lower() == "confirm", StateFilter(BotCategorySettingsStates.deletion_confirm))
@@ -117,6 +124,7 @@ async def back_to_settings(message: Message) -> None:
         BotCategorySettingsStates.edit_category,
         BotCategorySettingsStates.new_name_for_category,
         BotCategorySettingsStates.deletion_confirm,
+        BotCategorySettingsStates.add_category,
     ),
 )
 async def cancel_editing_category(message: Message, state: FSMContext) -> None:

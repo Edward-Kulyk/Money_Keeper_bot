@@ -10,7 +10,7 @@ from src.database.models import Category, Operation, ShopCategory
 from src.repository.operation import (
     add_unsorted_operation,
     get_unsorted_operation_by_shop_user_id,
-    get_unsorted_payment, get_unsorted_payment_by_id,
+    get_unsorted_payment, get_unsorted_payment_by_id, get_unsorted_payment_count,
 )
 from src.repository.shop_matching import add_shop_matching, get_category_by_shop
 from src.repository.user import get_user_by_tg_user_id
@@ -97,3 +97,20 @@ async def set_operation_category(operation_id: int, category_id: int) -> None:
         payment = await get_unsorted_payment_by_id(session, operation_id)
         if payment:
             payment.category_id = category_id
+
+
+async def sort_operation(user, user_data: dict) -> str:
+    if user.payment_mode == "remember":
+        counter = await set_match_shop_category(user_data["shop"], user.id, user_data["category_id"])
+        return f"{counter} operations was moved"
+    else:
+        await set_operation_category(user_data["unsorted_payment_id"], user_data["category_id"])
+        return f"Operation was moved"
+
+
+async def get_unsorted_payments_count(tg_user_id: int) -> int:
+    async with get_session() as session:
+        user = await get_user_by_tg_user_id(session, tg_user_id)
+        if user:
+            return await get_unsorted_payment_count(session, user.id)
+        return 0

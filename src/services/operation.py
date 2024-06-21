@@ -67,6 +67,8 @@ async def get_suggestion_for_unsorted_payment(shop_name: str, options: list[Cate
             model="gpt-3.5-turbo",
         )
 
+        if chat_completion.choices[0].message.content not in category_names:
+            return await get_suggestion_for_unsorted_payment(shop_name,options)
         return chat_completion.choices[0].message.content
 
     except Exception as e:

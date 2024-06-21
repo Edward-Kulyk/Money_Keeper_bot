@@ -18,15 +18,16 @@ sorting_router = Router()
 
 @sorting_router.message(F.text.lower().startswith("sort payments"))
 async def sorting_menu(message: Message, state: FSMContext) -> None:
-    unsorted_payment = await get_unsorted_payment_by_tg_id(message.from_user.id)
+
+    local_state = await state.get_state()
+    tg_id = (await state.get_data()).get("tg_id") if local_state == BotPaymentsSorting.category_suggestion else message.from_user.id
+    unsorted_payment = await get_unsorted_payment_by_tg_id(tg_id)
 
     if unsorted_payment and message:
 
-        categories = await get_category_list_by_tg_id(message.from_user.id)
-
+        categories = await get_category_list_by_tg_id(tg_id)
         suggested_category = await get_suggestion_for_unsorted_payment(unsorted_payment.shop, categories)
-
-        category = await get_category_object(suggested_category, (await get_user_by_tg_id(message.from_user.id)).id)
+        category = await get_category_object(suggested_category, (await get_user_by_tg_id(tg_id)).id)
 
         await message.answer(
             f"Shop: {unsorted_payment.shop}\n"
@@ -35,17 +36,19 @@ async def sorting_menu(message: Message, state: FSMContext) -> None:
             "Do you accept the suggested category?",
             reply_markup=get_category_suggest_category_keyboard(),
         )
+
         await state.set_state(BotPaymentsSorting.category_suggestion)
         await state.update_data(category_id=category.id, unsorted_payment_id=unsorted_payment.id,
-                                shop=unsorted_payment.shop)
+                                shop=unsorted_payment.shop, tg_id=tg_id)
+
     else:
+
         await message.answer("No unsorted payments found.")
         await main_menu_cmd(message)
 
 
 @sorting_router.message(F.text.lower() == "confirm", StateFilter(BotPaymentsSorting.category_suggestion))
 async def accept_suggested_category(message: Message, state: FSMContext):
-    print("nahij")
     if message:
         user = await get_user_by_tg_id(message.from_user.id)
         user_data = await state.get_data()
@@ -56,7 +59,7 @@ async def accept_suggested_category(message: Message, state: FSMContext):
 
 
 @sorting_router.message(F.text.lower() == "pick category", StateFilter(BotPaymentsSorting.category_suggestion))
-async def reject_suggested_category(message: Message, state: FSMContext):
+async def reject_suggested_category(message: Message):
     await message.answer("Please choose a category for the payment:",
                          reply_markup=await get_categories_keyboard(message.from_user.id, "select_category"))
 
@@ -69,10 +72,14 @@ async def handle_category_selection(callback_query: CallbackQuery, state: FSMCon
     user_data = await state.get_data()
     user_data["category_id"] = int(data[2])
 
+    await state.update_data(tg_id=callback_query.from_user.id)
+    await state.set_state(BotPaymentsSorting.category_suggestion)
+
     await callback_query.answer(await sort_operation(user, user_data))
 
     await callback_query.message.answer("Payment sorted successfully!")
     await callback_query.message.delete()
+    await sorting_menu(callback_query.message, state)
 
 
 @sorting_router.message(F.text.lower() == "back", StateFilter(BotPaymentsSorting.category_suggestion))

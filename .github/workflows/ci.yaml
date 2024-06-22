@@ -13,8 +13,8 @@ jobs:
     - name: Install linters
       run: |
         pip install --upgrade pip
-        pip install "ruff==0.4.4" "black==24.4.2" "isort==5.13.2" "mypy==1.10.0"
-        pip install types-requests
+        pip install poetry
+        poetry install --with dev 
 
     - name: Ruff check
       run: ruff check .
@@ -26,4 +26,4 @@ jobs:
       run: black --check .
 
     - name: mypy check
-      run: mypy .
+      run: mypy . --strict

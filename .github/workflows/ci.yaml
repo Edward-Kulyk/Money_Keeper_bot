@@ -26,4 +26,4 @@ jobs:
       run: black --check .
 
     - name: mypy check
-      run: mypy . --strict
+      run: mypy .

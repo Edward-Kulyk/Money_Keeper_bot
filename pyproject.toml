@@ -47,6 +47,7 @@ exclude = "alembic/env.py"
 check_untyped_defs = true
 disallow_untyped_calls = true
 disallow_untyped_defs = true
+ignore_missing_imports = true
 
 [tool.ruff]
 exclude = ["__init__.py"]

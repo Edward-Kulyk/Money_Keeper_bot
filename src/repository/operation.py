@@ -1,6 +1,6 @@
-from typing import List
+from typing import Sequence
 
-from sqlalchemy import asc, select, func
+from sqlalchemy import asc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import Operation
@@ -22,11 +22,12 @@ async def get_unsorted_payment(session: AsyncSession, user_id: int) -> Operation
         .scalars()
         .first()
     )
-    print(operation_row)
     return operation_row if operation_row else None
 
 
-async def get_unsorted_operation_by_shop_user_id(session: AsyncSession, user_id: int, shop: str) -> List[Operation]:
+async def get_unsorted_operation_by_shop_user_id(
+    session: AsyncSession, user_id: int, shop: str
+) -> Sequence[Operation] | None:
     query = (
         (
             await session.execute(
@@ -38,15 +39,15 @@ async def get_unsorted_operation_by_shop_user_id(session: AsyncSession, user_id:
         .scalars()
         .all()
     )
-    return query if query is not None else []
+    return query
 
 
-async def get_unsorted_payment_by_id(session: AsyncSession, operation_id: int) -> Operation:
+async def get_unsorted_payment_by_id(session: AsyncSession, operation_id: int) -> Operation | None:
     return (await session.execute(select(Operation).where(Operation.id == operation_id))).scalars().first()
 
 
-async def get_unsorted_payment_count(session: AsyncSession, owner_id) -> int:
+async def get_unsorted_payment_count(session: AsyncSession, owner_id: int) -> int:
     result = await session.execute(
         select(func.count(Operation.id)).where(Operation.owner_id == owner_id, Operation.category_id.is_(None))
     )
-    return result.scalar()
+    return result.scalar() or 0

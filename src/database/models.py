@@ -62,7 +62,9 @@ class Category(Base):
 
     owner: Mapped["User"] = relationship("User", back_populates="categories")
     operations: Mapped[List["Operation"]] = relationship("Operation", back_populates="category")
-    shops: Mapped[List["ShopCategory"]] = relationship("ShopCategory", back_populates="category", cascade="all, delete-orphan")
+    shops: Mapped[List["ShopCategory"]] = relationship(
+        "ShopCategory", back_populates="category", cascade="all, delete-orphan"
+    )
 
 
 class ShopCategory(Base):

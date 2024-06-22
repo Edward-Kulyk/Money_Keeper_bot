@@ -1,4 +1,6 @@
-from .database import Base, engine
+from .database import Base, engine, get_session
+
+__all__ = ["Base", "engine", "get_session"]
 
 
 async def init_db() -> None:

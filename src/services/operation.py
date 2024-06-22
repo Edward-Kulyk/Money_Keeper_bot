@@ -6,11 +6,13 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
 from src.database.database import get_session
-from src.database.models import Category, Operation, ShopCategory
+from src.database.models import Category, Operation, ShopCategory, User
 from src.repository.operation import (
     add_unsorted_operation,
     get_unsorted_operation_by_shop_user_id,
-    get_unsorted_payment, get_unsorted_payment_by_id, get_unsorted_payment_count,
+    get_unsorted_payment,
+    get_unsorted_payment_by_id,
+    get_unsorted_payment_count,
 )
 from src.repository.shop_matching import add_shop_matching, get_category_by_shop
 from src.repository.user import get_user_by_tg_user_id
@@ -40,6 +42,8 @@ async def parse_notification(data: NotificationData, user_id: int) -> None:
 async def get_unsorted_payment_by_tg_id(tg_user_id: int) -> Operation | None:
     async with get_session() as session:
         user = await get_user_by_tg_user_id(session, tg_user_id)
+        if not user:
+            return None
         return await get_unsorted_payment(session, user.id)
 
 
@@ -68,7 +72,7 @@ async def get_suggestion_for_unsorted_payment(shop_name: str, options: list[Cate
         )
 
         if chat_completion.choices[0].message.content not in category_names:
-            return await get_suggestion_for_unsorted_payment(shop_name,options)
+            return await get_suggestion_for_unsorted_payment(shop_name, options)
         return chat_completion.choices[0].message.content
 
     except Exception as e:
@@ -88,6 +92,8 @@ async def set_match_shop_category(shop_name: str, owner_id: int, category_id: in
                 owner_id=owner_id,
             ),
         )
+        if unsorted_operations is None:
+            return 0
         for operation in unsorted_operations:
             counter += 1
             operation.category_id = category_id
@@ -101,13 +107,13 @@ async def set_operation_category(operation_id: int, category_id: int) -> None:
             payment.category_id = category_id
 
 
-async def sort_operation(user, user_data: dict) -> str:
+async def sort_operation(user: User, user_data: dict[str, int | str]) -> str:
     if user.payment_mode == "remember":
-        counter = await set_match_shop_category(user_data["shop"], user.id, user_data["category_id"])
+        counter = await set_match_shop_category(str(user_data["shop"]), user.id, int(user_data["category_id"]))
         return f"{counter} operations was moved"
     else:
-        await set_operation_category(user_data["unsorted_payment_id"], user_data["category_id"])
-        return f"Operation was moved"
+        await set_operation_category(int(user_data["unsorted_payment_id"]), int(user_data["category_id"]))
+        return "Operation was moved"
 
 
 async def get_unsorted_payments_count(tg_user_id: int) -> int:

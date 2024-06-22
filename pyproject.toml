@@ -43,7 +43,7 @@ exclude ='''
 
 
 [tool.mypy]
-exclude = "src/schemas"
+exclude = "alembic/env.py"
 check_untyped_defs = true
 disallow_untyped_calls = true
 disallow_untyped_defs = true

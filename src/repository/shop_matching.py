@@ -8,9 +8,15 @@ async def add_shop_matching(session: AsyncSession, match: ShopCategory) -> None:
     session.add(match)
 
 
-async def get_category_by_shop(session: AsyncSession, shop: str, owner_id) -> int | None:
+async def get_category_by_shop(session: AsyncSession, shop: str, owner_id: int) -> int | None:
     return (
-        await session.execute(
-            select(ShopCategory.category_id).where(ShopCategory.shop_name == shop, ShopCategory.owner_id == owner_id)
+        (
+            await session.execute(
+                select(ShopCategory.category_id).where(
+                    ShopCategory.shop_name == shop, ShopCategory.owner_id == owner_id
+                )
+            )
         )
-    ).scalars().first()
+        .scalars()
+        .first()
+    )

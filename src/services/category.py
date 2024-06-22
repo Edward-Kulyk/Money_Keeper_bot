@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from src.database.database import get_session
 from src.database.models import Category
 from src.repository.category import (
@@ -34,11 +36,11 @@ async def delete_category_by_id(category_id: int) -> None:
         await delete_category(session, category_id)
 
 
-async def get_category_list_by_tg_id(tg_user_id: int) -> list[Category]:
+async def get_category_list_by_tg_id(tg_user_id: int) -> Sequence[Category]:
     async with get_session() as session:
         return await get_category_name_list(session, tg_user_id)
 
 
-async def get_category_object(category_name: str, owner_id: int) -> Category:
+async def get_category_object(category_name: str, owner_id: int) -> Category | None:
     async with get_session() as session:
         return await get_category_by_name_owner(session, category_name, owner_id)

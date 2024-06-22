@@ -1,7 +1,5 @@
 from pydantic import BaseModel, Field
-from pydantic.v1 import validator, root_validator
-
-from src.services.user import get_user_by_tg_token
+from pydantic.v1 import validator
 
 
 class NotificationData(BaseModel):
@@ -10,15 +8,15 @@ class NotificationData(BaseModel):
     telegramNick: str = Field(..., examples=["edward"])
     appName: str = Field(..., examples=["Google Play services"])
 
-    @validator('title')
-    def validate_title(self, value):
+    @validator("title")
+    def validate_title(self, value: str) -> str:
         if not value:
-            raise ValueError('Title must not be empty')
+            raise ValueError("Title must not be empty")
         return value
 
-    @validator('appName')
-    def validate_app_name(self, value):
+    @validator("appName")
+    def validate_app_name(self, value: str) -> str:
         allowed_apps = ["Google Play services", "Google\xa0Wallet"]
         if value not in allowed_apps:
-            raise ValueError(f'AppName must be one of {allowed_apps}')
+            raise ValueError(f"AppName must be one of {allowed_apps}")
         return value

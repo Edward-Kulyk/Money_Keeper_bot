@@ -1,12 +1,12 @@
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
 
+import os
 from sqlalchemy.exc import IntegrityError, OperationalError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
-# Database URL configuration
-DATABASE_URL = "postgresql+asyncpg://postgres:mysecretpassword@localhost:5433/moneykeeper"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Create an asynchronous engine
 engine = create_async_engine(DATABASE_URL, echo=True)

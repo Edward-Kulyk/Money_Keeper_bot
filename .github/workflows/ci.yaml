@@ -1,0 +1,29 @@
+name: Code Quality
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: "3.12"
+
+    - name: Install linters
+      run: |
+        pip install --upgrade pip
+        pip install poetry
+        poetry install --with dev 
+
+    - name: Run Ruff
+      run: poetry run ruff check .
+
+    - name: Run Isort
+      run: poetry run isort --check .
+
+    - name: Run Black
+      run: poetry run black --check .
+
+    - name: Run Mypy
+      run: poetry run mypy . --strict

@@ -1,3 +1,6 @@
+from functools import wraps
+from typing import Any, TypeVar, Callable, Awaitable
+
 from aiogram import F, Router
 from aiogram.filters.state import StateFilter
 from aiogram.fsm.context import FSMContext
@@ -12,6 +15,19 @@ from src.bot.state import BotCategorySettingsStates
 from src.services.category import add_new_category_from_user, delete_category_by_id, update_category_name_by_id
 
 category_router = Router()
+
+MessageHandler = TypeVar('MessageHandler', bound=Callable[[Message], Awaitable[Any]])
+
+
+def validate_from_user(func: MessageHandler) -> MessageHandler:
+    @wraps(func)
+    async def wrapper(message: Message, *args: Any, **kwargs: Any) -> Any:
+        if message.from_user is None:
+            await message.answer("User information is missing.")
+            return
+        return await func(message, *args, **kwargs)
+
+    return wrapper  # type: ignore
 
 
 @category_router.message(F.text.lower() == "category settings")
@@ -104,10 +120,10 @@ async def deletion_of_category(message: Message, state: FSMContext) -> None:
     await state.set_state(BotCategorySettingsStates.settings_category)
 
 
+@validate_from_user
 @category_router.message(F.text.lower() == "back to settings")
 async def back_to_settings(message: Message) -> None:
-    if message.from_user and message.text:
-        await message.answer("Settings Menu", reply_markup=await get_setting_menu(message.from_user.id))
+    await message.answer("Settings Menu", reply_markup=await get_setting_menu(message.from_user.id))
 
 
 @category_router.message(

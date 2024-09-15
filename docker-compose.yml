@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/money_keeper_db
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - .:/app
+    command: poetry run python -m src.bot.bot
+
+  api:
+    build: .
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/money_keeper_db
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: poetry run uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=money_keeper_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
